@@ -8,7 +8,7 @@
 
 ## Reading data and exploring data
 
-I started with the data wrangling and saved the learning2014.csv into my data-folder. You can find the R script and data here* <https://github.com/elinaj-r/IODS-project/tree/master/data>.
+I started with the data wrangling and saved the learning2014.csv into my data-folder. You can find the R script and data here: <https://github.com/elinaj-r/IODS-project/tree/master/data>.
 
 Here below is the R script and outcomes for reading the data and exploring it:
 
