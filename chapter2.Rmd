@@ -1,7 +1,123 @@
-# Insert chapter 2 title here
+# RStudio Excercise 2: Regression and model validation
 
 *Describe the work you have done this week and summarize your learning.*
 
-- Describe your work and results clearly. 
-- Assume the reader has an introductory course level understanding of writing and reading R code as well as statistical methods.
-- Assume the reader has no previous knowledge of your data or the more advanced methods you are using.
+- *Describe your work and results clearly.* 
+- *Assume the reader has an introductory course level understanding of writing and reading R code as well as statistical methods.*
+- *Assume the reader has no previous knowledge of your data or the more advanced methods you are using.*
+
+## Reading data and exploring data
+
+I started with the data wrangling and saved the learning2014.csv into my data-folder. You can find the R script and data here* <https://github.com/elinaj-r/IODS-project/tree/master/data>.
+
+Here below is the R script and outcomes for reading the data and exploring it:
+
+```{r}
+# Elina Järvelä-Reijonen
+# 11.11.2019
+# R script for data students2014, data source from own files: IODS-project/data/learning2014.csv
+
+# Reading the data
+students2014 = read.csv("~/IODS-project/data/learning2014.csv", header = TRUE, row.names = 1)
+
+# Exploring the structure and dimensions of the data
+str(students2014)
+dim(students2014)
+```
+
+**Interpretation:** The dataset includes 166 observations and 7 variables. Thus, for this dataset, 166 students have answered to a questionnaire about their gender, age, attitude, approaches to learning (deep, strategic, surface), and exam points from a statistics course. The gender is a 2-level factor variable ("F", "M") and the other variables are numerical. 
+
+
+## Descriptives of the variables
+
+```{r}
+summary(students2014)
+
+```
+
+**Interpretation:** There are 110 females and 56 males. They are aged of 17-55, with a mean of 26 years. The students' exam points range between 7 and 33, with a mean of 23 points.
+
+
+
+## Exploring data visually
+
+```{r}
+# A graphical overview of the data and summaries of the variables in the data
+# Access the GGally and ggplot2 libraries
+library(GGally)
+library(ggplot2)
+
+# Create a plot matrix
+p <- ggpairs(students2014, mapping = aes(), lower = list(combo = wrap("facethist", bins = 20)))
+
+# Draw the plot
+p
+
+```
+
+
+**Interpretation:** The distribution of the age is a bit skewed to left (more younger than older students), and the distribution of the exam points is a bit skewed to right (more higher than lower points). Otherwise the continuous variables are rather symmetrically/normally distributed. The continuous variables seem to be rather equally distributed among both genders. Looking at the scatter plots, it can be said that most of the correlations between the continuous variables have some linearity. Based on the correlation coefficients, the strongest correlations with points are with attitude (r=0.437), strategic learning approach (r=0.146), and surface learnign approach (r=-0.144). Thus, higher points from the test seems to associate with better attitude, higher strategic learning approach, and lower surface learning approach. However, these figures don't tell whether the associations are statistically significant or not.
+
+
+## Regression model
+
+To fit a regression model where exam points is the target (dependent) variable, I choose the three most correlated variables as explanatory (independent) variables.
+
+```{r}
+# Creating the model
+my_model <- lm(points ~ attitude + stra + surf, data = students2014)
+
+# Printing the summary 
+summary(my_model)
+
+```
+
+**Interpretation:** The only statistically significant predictor of the exam points is attitude (p<.001). The estimate shows that if attitude increases one point, exam points would increase 3.4 points. The estimate of the intercept shows that if attitude score is zero, exam points would be 11.0.Strategic learning approach have a positive estimate, meaning that it may have some positive association with exam points, but that is not statistically significant (p=.117). Surface learning approach may have some negative association with exam points, but also that is not statistically significant (p=.466). So, when exam points are predicted with this model, only attitude is a significant predictor. Variables stra and surf do not have significant contribution and thus they can be removed from the model. 
+
+```{r}
+# Creating the second model
+my_model2 <- lm(points ~ attitude, data = students2014)
+
+# Printing the summary 
+summary(my_model2)
+
+```
+
+**Interpretation:** In this model, attitude is still a significant predicor of exam points (p<.001). The estimates of the intercept and attitude are very similar as compared to the previous model. If attitude increases one point, exam points would increase 3.5 points. If attitude score is zero, exam points would be 11.6. The multiple R-squared (0.1906) describes of how much the variation in exam points is explained by the variation in attitude. Thus, in this model, attitude explains 19% of the exam points.
+
+```{r}
+# Drawing the regression line
+p1 <- ggplot(students2014, aes(x = attitude, y = points))
+p2 <- p1 + geom_point()
+p3 <- p2 + geom_smooth(method = "lm")
+p4 <- p3 + ggtitle("Linear regression: Student's attitude versus exam points")
+p4
+
+```
+
+## Diagnostic plots
+
+
+```{r}
+# Drawing diagnostic plots to the same plot
+par(mfrow = c(2,2))
+plot(my_model2, which = c(1,2,5))
+
+```
+
+**Interpretation:** Residuals are the differences between an observed value of the target (dependent) variable and the corresponding fitted value. Thus, the residuals estimate the error terms in the model. Analyzing the residuals of the model helps to assess the validity of the model assumptions.
+
+Checking the assumptions of linear regression model:
+
++ The errors should have constant variance (Residuals vs Fitted values): there seems to be no pattern in the scatter plot, and thus I think this assumption is met.
++ The errors should be normally distributed (Normal QQ-plot): the points are rather well at the line, and thus I think the normality assumption is not highly violated.
++ A single observation should not have an unusually high impact (Residuals vs Leverage): the points in the plot seems to be rather close to each other (no outliers), no leverage is markedly different than others.
+
+To conclude, the my_model2 is a linear regression model which has no significant violations of the assumptions (based on these three plots).
+
+
+
+
+
+
+
