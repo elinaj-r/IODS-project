@@ -1,0 +1,90 @@
+# RStudio Excercise 3: Logistic regression
+
+## Reading data and exploring data
+
+I started with the data wrangling and saved the alc.csv into my data-folder. You can find the R script and data here: <https://github.com/elinaj-r/IODS-project/tree/master/data>.
+
+Here below is the R script and outcomes for reading the data and exploring it:
+
+```{r}
+# Elina Järvelä-Reijonen
+# 18.11.2019
+# R script for data "alco", data source from own files: IODS-project/data/alc.csv
+
+# Reading the data
+alco = read.csv("~/IODS-project/data/alc.csv", header = TRUE, row.names = 1)
+
+# access the 'tidyverse' packages dplyr and ggplot2
+library(dplyr); library(ggplot2)
+
+# Exploring the structure and dimensions of the data
+glimpse(alco)
+```
+
+**Interpretation:** The dataset includes 382 observations and 35 variables. The original data comes from two Portuguese schools, in which data from school reports and students' questionnaires has been collected. The original data is available at <https://archive.ics.uci.edu/ml/datasets/Student+Performance#>.
+
+## Studying factors possibly related with high alcohol consumption
+
+I will study how sex (variable sex), age (age), quality of family relationship (famrel), and current health status (health) are related to high alcohol consumption. My personal hypothesis is that male sex, higher age, worse family relationship, and worse health status are associated with high alcohol consumption.
+
+
+```{r}
+# Let's produce summary statistics for the categorical variable by alcohol consumption
+alco %>% group_by(sex, high_use) %>% summarise(count = n())
+
+# Let's check the distribution of the continuous variables and create plots by alcohol consumption
+summary(alco$age)
+g1 <- ggplot(alco, aes(x = high_use, y = age))
+g1 + geom_boxplot() + ylab("age") + ggtitle ("Student age by alcohol consumption")
+
+summary(alco$famrel)
+g2 <- ggplot(alco, aes(x = high_use, y = famrel))
+g2 + geom_boxplot() + ylab("famrel") + ggtitle ("Student family relationship by alcohol consumption")
+
+summary(alco$health)
+g3 <- ggplot(alco, aes(x = high_use, y = health))
+g3 + geom_boxplot() + ylab("health") + ggtitle ("Student health status relationship by alcohol consumption")
+
+
+```
+
+**Interpretation:** 
+Among high alcohol users, there are 42 females and 72 males. Among low alcohol users, there are 156 females and 112 males. It can be calculated, that of the high alcohol users, 37% are females whereas among low alcohol users the proportion of females seems to be higher (58%).This supports my previous hypothesis.
+
+Students’ age ranges between 15 – 22 years. Median and mean are about 17 years. Based on the plot, it seems that the age may be higher among those who use more alcohol. This supports my previous hypothesis.
+
+Students’ quality of family relationships are rather good on average: median and mean are about 4. The scores range from 1 - very bad to 5 – excellent. Based on the plot, it seems that the family relationships may be a bit worse among those who use more alcohol. This supports my previous hypothesis.
+
+Student’s current health status is also rather good on average: median and mean are about 4. The scores range from 1 - very bad to 5 – very good. Based on the plot, the health status is similar among high and low alcohol users. My previous hypothesis is not supported.
+
+
+
+## Studying the relationships with logistic regression
+
+
+
+```{r}
+# Let's create the model and look at the results
+
+m <- glm(high_use ~ sex + age + famrel + health, data = alco, family = "binomial")
+summary(m)
+coef(m)
+
+```
+
+**Interpretation:** Sex, age and family relationships are significant explanatory variables in the model. Male sex, higher age, and lower quality in family relationships predict higher alcohol use. Howver, as already seen in the plot, health status is not related to alcohol usage.
+
+```{r}
+
+# compute odds ratios (OR)
+OR <- coef(m) %>% exp
+
+# compute confidence intervals (CI)
+CI <- confint(m) %>% exp
+
+# print out the odds ratios with their confidence intervals
+cbind(OR, CI)
+
+```
+
+**Interpretation:**
