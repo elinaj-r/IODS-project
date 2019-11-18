@@ -502,10 +502,6 @@ summary(m)</code></pre>
 <pre><code>## (Intercept)        sexM         age      famrel      health 
 ## -4.38458241  0.91396771  0.24191160 -0.33961131  0.09591204</code></pre>
 <p><strong>Interpretation:</strong> Sex, age and family relationships are significant explanatory variables in the model. Male sex, higher age, and lower quality in family relationships predict higher alcohol use. Howver, as already seen in the plot, health status is not related to alcohol usage.</p>
-<pre class="r"><code># Let&#39;s check coefficients
-coef(m)</code></pre>
-<pre><code>## (Intercept)        sexM         age      famrel      health 
-## -4.38458241  0.91396771  0.24191160 -0.33961131  0.09591204</code></pre>
 <pre class="r"><code># compute odds ratios (OR)
 OR &lt;- coef(m) %&gt;% exp
 
@@ -520,7 +516,8 @@ cbind(OR, CI)</code></pre>
 ## age         1.27368159 1.050523795 1.5504416
 ## famrel      0.71204703 0.553923080 0.9123608
 ## health      1.10066224 0.930267821 1.3080501</code></pre>
-<p><strong>Interpretation:</strong></p>
+<p><strong>Interpretation:</strong> The odds ratios show, that male sex is the strongest predictor for high alcohol consumption. Males have 2.5 times higher risk for higher alcohol consumption compared to females (females OR = 1). When age increases one year, the risk for higher alcohol consumption is 1.3 time. These results are significant, as the 95% confidence intervals are above 1. When the quality in family relationships would increase by one score, the risk for high alcohol use would be 0.7 time (the risk will decrease). This is also significant predictor, as the 95% confidence interval is below 1. However, the OR for health status is 1.1 and also the 95% CI is aroung 1, which means that current health status is not related to the risk of higher alcohol use among these students.</p>
+<p>To conclude, my hypothesis was otherwise confirmed except for the current health status.</p>
 </div>
 </div>
 

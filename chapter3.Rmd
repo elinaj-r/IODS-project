@@ -87,4 +87,6 @@ cbind(OR, CI)
 
 ```
 
-**Interpretation:**
+**Interpretation:** The odds ratios show, that male sex is the strongest predictor for high alcohol consumption. Males have 2.5 times higher risk for higher alcohol consumption compared to females (females OR = 1). When age increases one year, the risk for higher alcohol consumption is 1.3 time. These results are significant, as the 95% confidence intervals are above 1. When the quality in family relationships would increase by one score, the risk for high alcohol use would be 0.7 time (the risk will decrease). This is also significant predictor, as the 95% confidence interval is below 1. However, the OR for health status is 1.1 and also the 95% CI is aroung 1, which means that current health status is not related to the risk of higher alcohol use among these students.
+
+To conclude, my hypothesis was otherwise confirmed except for the current health status.
