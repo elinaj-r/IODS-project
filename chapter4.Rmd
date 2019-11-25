@@ -27,4 +27,90 @@ pairs(Boston)
 summary(Boston)
 ```
 
-**Interpretation:** 
+**Interpretation:** Based on the plot, some variables seem to have linear association (for example an inverse association between lstat and medv, i.e. percentage of lower status of the population and median value of owner-occupied homes). Per capita crime rate (crim) has a large range (0 - 89).
+
+```{r}
+# Drawing a correlations plot
+# access the 'corrplot' and 'tidyr' packages
+library(corrplot)
+library(tidyr)
+
+
+# calculate the correlation matrix and round it (use two digits)
+cor_matrix<-cor(Boston)
+
+# print the correlation matrix
+cor_matrix
+
+# visualize the correlation matrix
+corrplot(cor_matrix, method="circle", type="upper", cl.pos="b", tl.pos="d", tl.cex = 0.6)
+
+```
+
+## Standardizing the variables and categorizing the crime rate
+
+```{r}
+# Let's standardize the variables
+boston_scaled <- scale(Boston)
+
+# summaries of the scaled variables
+summary(boston_scaled)
+
+# the variables are now centered so that the mean is 0
+
+# class of the boston_scaled object
+class(boston_scaled)
+
+# change the object to data frame
+boston_scaled <- as.data.frame(boston_scaled)
+
+# create a quantile vector of crim and print it
+bins <- quantile(boston_scaled$crim)
+bins
+
+# Let's use the bins to create a categorical variable
+crime <- cut(boston_scaled$crim, breaks = bins, include.lowest = TRUE)
+
+# look at the table of the new factor crime
+table(crime)
+
+# create a categorical variable 'crime' and set the labels
+crime <- cut(boston_scaled$crim, breaks = bins, include.lowest = TRUE, labels = c("low", "med_low", "med_high", "high"))
+
+# look at the table of the new factor crime
+table(crime)
+
+# Let's remove original crim from the dataset
+boston_scaled <- dplyr::select(boston_scaled, -crim)
+
+# add the new categorical value to scaled data
+boston_scaled <- data.frame(boston_scaled, crime)
+
+
+```
+
+## Creating train and test datasets
+
+```{r}
+# number of rows in the Boston dataset 
+n <- nrow(boston_scaled)
+
+# choose randomly 80% of the rows
+ind <- sample(n,  size = n * 0.8)
+
+# create train set
+train <- boston_scaled[ind,]
+
+# create test set 
+test <- boston_scaled[-ind,]
+
+# save the correct classes from test data
+correct_classes <- test$crime
+
+# remove the crime variable from test data
+test <- dplyr::select(test, -crime)
+
+```
+
+
+
