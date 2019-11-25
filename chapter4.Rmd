@@ -1,0 +1,30 @@
+# RStudio Excercise 4: Clustering and classification
+
+This week's exercise will use a data from MASS package.
+
+## Reading data and exploring data
+
+```{r}
+# Elina Järvelä-Reijonen
+# 25.11.2019
+
+
+# Loading the data
+library(MASS)
+data('Boston')
+
+# Exploring the structure and dimensions of the data
+str(Boston)
+dim(Boston)
+```
+
+**Interpretation:** The dataset includes 506 observations and 14 variables. All the variables are numerical. The data describes housing values in suburbs of Boston, such as average number of rooms per dwelling and nitrogen oxides concentration. The full description can be found here: <https://stat.ethz.ch/R-manual/R-devel/library/MASS/html/Boston.html>.
+
+```{r}
+# A graphical overview of the data and summaries of the variables in the data
+
+pairs(Boston)
+summary(Boston)
+```
+
+**Interpretation:** 
