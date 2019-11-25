@@ -1,4 +1,4 @@
-# RStudio Excercise 4: Clustering and classification
+# RStudio Exercise 4: Clustering and classification
 
 This week's exercise will use a data from MASS package.
 
@@ -46,6 +46,8 @@ cor_matrix
 corrplot(cor_matrix, method="circle", type="upper", cl.pos="b", tl.pos="d", tl.cex = 0.6)
 
 ```
+**Interpretation:** The correlations plot shows several strong correlations between the variables. A bigger dot describes a bigger/stronger correlation. Blue dots represent postivie correlation and red dots negative correlation. For example, indus and nox has a strong positive correlation (i.e., the more non-retail business acres per town, the higher is the nitrogen oxides concentration).
+
 
 ## Standardizing the variables and categorizing the crime rate
 
@@ -89,7 +91,7 @@ boston_scaled <- data.frame(boston_scaled, crime)
 
 ```
 
-## Creating train and test datasets
+## Creating the train and test datasets
 
 ```{r}
 # number of rows in the Boston dataset 
@@ -112,5 +114,115 @@ test <- dplyr::select(test, -crime)
 
 ```
 
+## Linear discriminant analysis (LDA)
+```{r}
+# linear discriminant analysis
+lda.fit <- lda(crime ~ ., data = train)
+
+# print the lda.fit object
+lda.fit
+
+```
+The Linear Discriminant 1 explains most, 95%, of the between-group variance. Accessibility to radial highways (rad) seems to be the most influential variable in the LD1.
+
+```{r}
+# drawing the (bi)plot
+lda.arrows <- function(x, myscale = 1, arrow_heads = 0.1, color = "orange", tex = 0.75, choices = c(1,2)){
+  heads <- coef(x)
+  arrows(x0 = 0, y0 = 0, 
+         x1 = myscale * heads[,choices[1]], 
+         y1 = myscale * heads[,choices[2]], col=color, length = arrow_heads)
+  text(myscale * heads[,choices], labels = row.names(heads), 
+       cex = tex, col=color, pos=3)
+}
+
+# target classes as numeric
+classes <- as.numeric(train$crime)
+
+# plot the lda results
+plot(lda.fit, dimen = 2, col = classes, pch = classes)
+lda.arrows(lda.fit, myscale = 1)
 
 
+```
+
+## Predicting with the LDA model
+
+The crime categories were already saved previously to correct_classes and the crime categories were removed from the data set (in the Creating the train and test datasets -section).
+
+```{r}
+# predict classes with LDA model on the test data
+lda.pred <- predict(lda.fit, newdata = test)
+
+# cross tabulate the results with the crime categories from the test set
+table(correct = correct_classes, predicted = lda.pred$class)
+
+
+```
+
+**Interpretation:** The model predicts high crime rate category well. Also the med_high and med_low are rather accurately predicted. However, the model is not very good to predict low crime rate accurately.
+
+## K-means clustering
+```{r}
+# Reloading the data
+library(MASS)
+data('Boston')
+
+# center and standardize variables
+boston_scaled <- scale(Boston)
+
+# summaries of the scaled variables
+summary(boston_scaled)
+
+# class of the boston_scaled object
+class(boston_scaled)
+
+# change the object to data frame
+boston_scaled <- as.data.frame(boston_scaled)
+
+
+```
+```{r}
+# calculating euclidean distances
+dist_eu <- dist(boston_scaled)
+summary(dist_eu)
+
+# calculating manhattan distances
+dist_man <- dist(boston_scaled, method = "manhattan")
+summary(dist_man)
+
+```
+```{r}
+# k-means clustering, let's try with 3 clusters
+km <-kmeans(boston_scaled, centers = 3)
+
+# plot the Boston dataset with clusters
+pairs(boston_scaled [1:5], col = km$cluster)
+pairs(boston_scaled [6:10], col = km$cluster)
+pairs(boston_scaled [11:14], col = km$cluster)
+```
+```{r}
+# let's try to find the best number for clusters, maximum 10
+set.seed(123)
+k_max <- 10
+
+# calculate the total within sum of squares (WCSS)
+twcss <- sapply(1:k_max, function(k){kmeans(boston_scaled, k)$tot.withinss})
+
+# visualize the results
+qplot(x = 1:k_max, y = twcss, geom = 'line')
+```
+
+
+**Interpretation:** When the number of clusters and the total WCSS are plotted, the optimal number of clusters is when the total WCSS drops radically.Thus, it could be interpreted that the optimal number of clusters in this case would be 2 or 7. I think it would be easier, if the number of clusters is low, so, let's take 2.
+
+```{r}
+
+# k-means clustering
+km <-kmeans(boston_scaled, centers = 2)
+
+# plot the scaled Boston dataset with clusters
+pairs(boston_scaled, col = km$cluster)
+
+
+```
