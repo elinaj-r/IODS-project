@@ -63,7 +63,7 @@ The results are different between the non-standardized and standardized data. Th
 ```{r}
 # Load the dataset
 library(FactoMineR)
-library(dplyr); library(ggplot2)
+library(dplyr); library(ggplot2); library(tidyr)
 data(tea)
 glimpse(tea)
 str(tea)
@@ -77,8 +77,6 @@ keep_columns <- c("Tea", "where", "sex", "home", "work", "friends")
 tea_time <- select(tea, one_of(keep_columns))
 summary(tea_time)
 str(tea_time)
-
-library(tidyr)
 
 # visualize the dataset
 gather(tea_time) %>% ggplot(aes(value)) + facet_wrap("key", scales = "free") + geom_bar() + theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8))
