@@ -1,0 +1,103 @@
+# RStudio Exercise 5: Dimensionality reduction techniques
+
+This week I did not have time for the data wrangling part. So, I am using the 'human' data given.
+The data is described here: <https://raw.githubusercontent.com/TuomoNieminen/Helsinki-Open-Data-Science/master/datasets/human_meta.txt>.
+
+## Reading data and exploring data
+
+```{r}
+# Elina Järvelä-Reijonen
+# 2.12.2019
+
+
+# Reading the data
+human <- read.table("http://s3.amazonaws.com/assets.datacamp.com/production/course_2218/datasets/human2.txt", sep=",", header=TRUE)
+
+# Exploring the structure and dimensions of the data
+summary(human)
+
+# Access GGally
+library(GGally)
+ggpairs(human)
+
+```
+
+The variables are:
+Edu2.FM = Proportion of females/males with at least secondary education
+Labo.FM = Proportion of females/males in the labour force
+Edu.Exp = Expected years of schooling
+Life.Exp = Life expectancy at birth
+GNI = Gross National Income per capita
+Mat.Mor = Maternal mortality ratio
+Ado.Birth = Adolescent birth rate 
+Parli.F = Percetange of female representatives in parliament
+
+**Interpretation:** The distribution of Edu.Exp is close to normal distribution, but the others are not. Especially GNI, Mat.Mor and Ado.Birth are skewed to right, meaning that most of the values in these variables are low. Some of the variables correlate with each other. For example, Edu.Exp and Life.Exp have a high positive correlation (r=0.789) and Mat.Mor and Edu.Exp have a high negative correlation (-0.736).
+
+## Principal Component Analysis (PCA)
+
+```{r}
+# Use data that is not standardized first
+pca_human <- prcomp(human)
+pca_human
+summary(pca_human)
+biplot(pca_human, choices = 1:2, cex = c(0.8, 1), col = c("grey40", "deeppink2"))
+
+# Standardize the data and use that for the PCA (this is how it should be done)
+human_std <- scale(human)
+pca_human_std <- prcomp(human_std)
+pca_human_std
+summary(pca_human_std)
+biplot(pca_human_std, choices = 1:2, cex = c(0.8, 1), col = c("grey40", "deeppink2"))
+
+```
+
+**Interpretation:** In the non-standardized PCA analysis we can see that the values in the principal components are very small. Also the biplot is difficult to interpret. 
+
+However, the standardized data gives results that are much easier to interpret. Most of the variance of the data (53.6%) is captured by the PC1. PC1 represents low ratio of females/males with at least secondary education, low expected years of schooling, low life expectancy at birth, low Gross National Income per capita, high maternal mortality ratio, and high adolescent birth rate. PC2 (16.2%) high proportion of females/males in the labour force and high percetange of female representatives in parliament. Thus, PC1 represents countries' life expectancy, maternal mortality, possibilities for education, and income level. PC2 represents females in workforce and parliament. 
+
+The results are different between the non-standardized and standardized data. This is because PCA assumes that features with larger variance are more important than features with smaller variance. That's why it is important to standardize the variables used in the PCA.
+
+## Multiple Correspondence Analysis (MCA)
+
+```{r}
+# Load the dataset
+library(FactoMineR)
+library(dplyr); library(ggplot2)
+data(tea)
+glimpse(tea)
+str(tea)
+```
+
+```{r}
+# There are 36 variables, so, let's take just six interesting ones
+keep_columns <- c("Tea", "where", "sex", "home", "work", "friends")
+
+# select the 'keep_columns' to create a new dataset
+tea_time <- select(tea, one_of(keep_columns))
+summary(tea_time)
+str(tea_time)
+
+library(tidyr)
+
+# visualize the dataset
+gather(tea_time) %>% ggplot(aes(value)) + facet_wrap("key", scales = "free") + geom_bar() + theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8))
+
+
+```
+
+**Interpretation:** The FactoMineR package is described here <https://cran.r-project.org/web/packages/FactoMineR/FactoMineR.pdf>, but there was no metadata for the 'tea' data. The first 18 questions are about how the respondents drink tea. So, I assume the variables describe, whether the person drinks tea with his/her friends, at home, at work, which tea, where the tea is bought, and the respondents sex.
+
+```{r}
+# Let's conduct the MCA
+mca <- MCA(tea_time, graph = FALSE)
+summary(mca)
+
+# visualize MCA
+plot(mca, invisible=c("ind"), habillage = "quali")
+
+
+```
+
+**Interpretation:** 
+
