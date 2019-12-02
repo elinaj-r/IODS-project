@@ -71,12 +71,7 @@ str(tea)
 
 ```{r}
 # There are 36 variables, so, let's take just six interesting ones
-keep_columns <- c("Tea", "where", "sex", "home", "work", "friends")
-
-# select the 'keep_columns' to create a new dataset
-tea_time <- select(tea, one_of(keep_columns))
-summary(tea_time)
-str(tea_time)
+tea_time = tea[, c("Tea", "where", "sex", "home", "work", "friends")]
 
 # visualize the dataset
 gather(tea_time) %>% ggplot(aes(value)) + facet_wrap("key", scales = "free") + geom_bar() + theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8))
@@ -97,5 +92,5 @@ plot(mca, invisible=c("ind"), habillage = "quali")
 
 ```
 
-**Interpretation:** 
+**Interpretation:** Drinking tea not at home is very far from the other measures used in this analysis.
 
