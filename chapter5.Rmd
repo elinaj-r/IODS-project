@@ -41,7 +41,7 @@ Parli.F = Percetange of female representatives in parliament
 pca_human <- prcomp(human)
 pca_human
 summary(pca_human)
-biplot(pca_human, choices = 1:2, cex = c(0.8, 1), col = c("grey40", "deeppink2"))
+
 
 # Standardize the data and use that for the PCA (this is how it should be done)
 human_std <- scale(human)
